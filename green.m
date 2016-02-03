@@ -51,8 +51,6 @@ function [ GE, WE, GExx ] = green( Nelem,Nstencil,dx )
         
         W = mean(phiL.*dphiR-phiR.*dphiL);
 
-        Gx = (triu(phiL*transpose(phiR),1)+tril(phiR*transpose(phiL)))...
-            / mean(W);
         
     end
     

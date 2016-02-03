@@ -18,7 +18,7 @@ v2 = v0*cosh(x+R/2).^(-2);
 [dn,W,G] = green(Nelem,Nstencil,dx);
 
 E1 = -1;
-E2 = -.25;
+E2 = -.75;
 eta = 1;
 
 % Npath = 30;
