@@ -1,3 +1,5 @@
+% Example script for a simple constant finite well
+
 clear;
 x = [-1/2,1/2]';
 dx = [0;diff(x);0];

@@ -1,3 +1,5 @@
+% Example script for a simple step potential
+
 clear;
 x = 0;
 dx = [0;diff(x);0];
