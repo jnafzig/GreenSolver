@@ -1,21 +1,19 @@
-% Example script for a simple step potential
-
 clear;
-x = 0;
+x = [-3/2,-1/2,1/2,3/2]';
 dx = [0;diff(x);0];
 Nx = numel(x);
 
 shoot = solver(x);
 
-vL = -5; 
+vL = 0; 
 vR = 0;
-v = [vL,vR]';
+v = [vL,-1,0,-1,vR]';
 
 k = @(E,v) sqrt(2*(E-v));
 
-xval = linspace(-10,5/2,101)';
+xval = linspace(-5/2,5/2,101)';
 [x1,x2] = ndgrid(xval,xval);
-
+    
 dens = @(E,v) density(xval,x,k(E,v),shoot(E,v));
 densint = @(E,v) densityintegral(x,k(E,v),shoot(E,v));
 
@@ -26,44 +24,29 @@ resp = @(E,v) response(x1,x2,x,k(E,v),shoot(E,v));
 respint = @(E,v) responseintegral(x,k(E,v),shoot(E,v));
 
 E0 = min(v)-1;
+mu = -.25;
 
-Nplot = 5;
+R = (E0+mu)/2;
+A = mu-R;
+E = @(theta) R + A*exp(1i*theta);
+dEdt = @(theta) 1i*A*exp(1i*theta);
 
-muR = linspace(min(v),-.5,Nplot);
-muR(1) = muR(1)+.2;
-
-n = zeros(numel(xval),Nplot);
-phi = zeros(numel(xval),Nplot);
-N = zeros(numel(x)+1,Nplot);
-
-for i = 1:Nplot
-    mu = muR(i);
-    
-    sol = shoot(mu,v);
-    phi(:,i) = orbital(xval,x,k(mu,v),sol(:,2))*1e-1 + mu;    
-    
-    R = (E0+mu)/2;
-    A = mu-R;
-    E = @(theta) R + A*exp(1i*theta);
-    dEdt = @(theta) 1i*A*exp(1i*theta);
-    
-    tic;
-    n(:,i) = integral(@(theta) dens(E(theta),v)*dEdt(theta),pi,0,...
-                'ArrayValued',true,...
-                'RelTol',eps,...
-                'AbsTol',eps);
-    n(:,i) = (1i*n(:,i)+conj(1i*n(:,i)))/(pi);
-    toc;
+tic;
+n = integral(@(theta) dens(E(theta),v)*dEdt(theta),pi,0,...
+            'ArrayValued',true,...
+            'RelTol',eps,...
+            'AbsTol',eps);
+n = (1i*n+conj(1i*n))/(pi);
+toc;
 
 
-    tic;
-    N(:,i) = integral(@(theta) -densint(E(theta),v)*dEdt(theta),0,pi,...
-                'ArrayValued',true, ...
-                'RelTol',eps, ...
-                'AbsTol',eps);
-    N(:,i) = (1i*N(:,i)+conj(1i*N(:,i)))/(pi);
-    toc;
-end
+tic;
+N = integral(@(theta) -densint(E(theta),v)*dEdt(theta),0,pi,...
+            'ArrayValued',true, ...
+            'RelTol',eps, ...
+            'AbsTol',eps);
+N = (1i*N+conj(1i*N))/(pi);
+toc;
 
 tic;
 chi = integral(@(theta) resp(E(theta),v)*dEdt(theta),pi,0,...
@@ -98,21 +81,21 @@ densmatint = (1i*densmatint+conj(1i*densmatint))/(pi);
 toc;
 
 xstair = [min(xval);x;max(xval)];
-Nstair = [N;N(end,:)];
+Nstair = [N;N(end)];
 vstair = [v;v(end)];
 subplot(2,2,1);
-plot(xval,n); %hold on; stairs(xstair,Nstair,'k--'); hold off;
+plot(xval,n);hold on; stairs(xstair,Nstair,'k--'); hold off;
 xlim([min(xval),max(xval)]);
 
-title('density');
+title('density and integrated density');
 
 subplot(2,2,3);
-stairs(xstair,vstair,'r');hold on; plot(xval,real(phi)); hold off;
+stairs(xstair,vstair,'r');
 
 ylim([min(v)-1/2,max(v)+1/2]);
 xlim([min(xval),max(xval)]);
 
-title('potential + orbitals');
+title('potential');
 
 subplot(2,2,4);
 contourf(x1,x2,chi);

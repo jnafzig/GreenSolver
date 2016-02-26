@@ -1,23 +1,9 @@
 function [ solver_fh ] = solver( x )
-    %SOLVER Summary of this function goes here
-    %   Detailed explanation goes here
+    %SOLVER 
     
-%     dx = [0;diff(x);0];
     Nx = numel(x);
 
     r = @(N) (1:2:2*N)';
-
-    % construct matching matrix
-%     Mi = [[r(Nx+1);r(Nx+1);r(Nx+1)+1;r(Nx+1)+1];[r(Nx);r(Nx);r(Nx)+1;r(Nx)+1]+2];
-%     Mj = [[r(Nx+1);r(Nx+1)+1;r(Nx+1);r(Nx+1)+1];[r(Nx);r(Nx)+1;r(Nx);r(Nx)+1]];
-%     Mval = @(k) [-ones(Nx+1,1);...
-%                 -ones(Nx+1,1);...
-%                 -1i*k;...
-%                 1i*k;...
-%                 exp(k(1:end-1).*dx(1:end-1)*1i);...
-%                 exp(-k(1:end-1).*dx(1:end-1)*1i);...
-%                 1i*k(1:end-1).*exp(k(1:end-1).*dx(1:end-1)*1i);...
-%                 -1i*k(1:end-1).*exp(-k(1:end-1).*dx(1:end-1)*1i)];
 
     Mi = [[r(Nx);r(Nx);r(Nx)+1;r(Nx)+1];[r(Nx);r(Nx);r(Nx)+1;r(Nx)+1]];
     Mj = [[r(Nx);r(Nx)+1;r(Nx);r(Nx)+1]+2;[r(Nx);r(Nx)+1;r(Nx);r(Nx)+1]];
